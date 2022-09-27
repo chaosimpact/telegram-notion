@@ -3,7 +3,6 @@ from os import getenv, environ
 from datetime import date, datetime
 from typing import Dict, List
 
-
 from telegram import Update, update
 from telegram.ext import (
     Updater,
@@ -23,9 +22,11 @@ class DiaryBot:
     def __init__(self,
                  telegramkey: str,
                  port: int,
+                 webhook_url: str,
                  ) -> None:
         self.token = telegramkey
         self.port = port
+        self.webhook_url = webhook_url
         self.updater = Updater(token=self.token)
         self.dispatcher = self.updater.dispatcher
         self.notionpy = None
@@ -91,7 +92,7 @@ class DiaryBot:
         self.updater.start_webhook(listen="0.0.0.0",
                                    port=int(self.port),
                                    url_path=self.token,
-                                   webhook_url='https://telegramtonotion.herokuapp.com/'+self.token
+                                   webhook_url=self.webhook_url + self.token
                                    )
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                             level=logging.INFO)
@@ -100,8 +101,9 @@ class DiaryBot:
 
 if __name__ == "__main__":
     load_dotenv()
-    PORT = int(environ.get('PORT', 8443))
+    port = int(environ.get('PORT', 8443))
     api_key = getenv("TELEGRAM_KEY")
+    webhook_url = getenv("WEBHOOK_URL")
 
-    bot = DiaryBot(api_key, PORT)
+    bot = DiaryBot(api_key, port, webhook_url)
     bot.initbot()
